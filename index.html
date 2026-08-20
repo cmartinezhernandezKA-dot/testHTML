@@ -94,7 +94,52 @@
 <!-- Lightning Out JS from your Salesforce Site -->
 <script id="lightning-out-js"></script>
 
+
+
 <script>
+    (function () {
+        var scriptEl = document.getElementById('lightning-out-js');
+        scriptEl.src = SF_SITE_URL + '/lightning/lightning.out.js';
+        scriptEl.onload = function () {
+            document.getElementById('loading-msg').textContent = 'Connecting to Salesforce…';
+
+            var params = new URLSearchParams(window.location.search);
+            var firstName = params.get('firstName') || '';
+            var lastName = params.get('lastName') || '';
+            var email = params.get('email') || '';
+
+            $Lightning.use(
+                'c:embedFlowInExternalWebsiteApp',
+                function () {
+                    $Lightning.createComponent(
+                        'c:embedFlowInExternalWebsite',
+                        {
+                            flowApiName: FLOW_API_NAME,
+                            firstName: firstName,
+                            lastName: lastName,
+                            email: email
+                        },
+                        'flowLocator',
+                        function (cmp) {
+                            if (cmp) {
+                                document.getElementById('loading-msg').style.display = 'none';
+                            }
+                        }
+                    );
+                },
+                SF_SITE_URL
+            );
+        };
+        scriptEl.onerror = function () {
+            document.getElementById('loading-msg').style.display = 'none';
+            var errEl = document.getElementById('error-msg');
+            errEl.style.display = 'block';
+            errEl.textContent = 'Failed to load lightning.out.js — check your SF_SITE_URL (' + SF_SITE_URL + ')';
+        };
+    })();
+</script>
+
+<!--<script>
     (function () {
         var scriptEl = document.getElementById('lightning-out-js');
         scriptEl.src = SF_SITE_URL + '/lightning/lightning.out.js';
@@ -127,7 +172,7 @@
             errEl.textContent = 'Failed to load lightning.out.js — check your SF_SITE_URL (' + SF_SITE_URL + ')';
         };
     })();
-</script>
+</script>-->
 
 
 
